@@ -15,16 +15,32 @@ import java.util.Iterator;
 public class CustomRunner extends Runner {
     private Class testClass;
     private HashMap<String, CustomTestMethod> testMethodMap;
+    private static final String runArgsPropertyName = "sun.java.command";
 
     public CustomRunner(Class testClass) {
         super();
+        String targetMethod;
         this.testClass = testClass;
-
-        //Iterate methods and add them into hashmap
         testMethodMap = new HashMap<String, CustomTestMethod>();
-        for (Method method : testClass.getMethods()) {
-            if (method.isAnnotationPresent(Test.class)) {
+
+        //get target method from System.properties
+        targetMethod = getMethodNameFromArgs();
+
+        //if target method is present, add single method to map
+        if (targetMethod.length() > 0) {
+            try {
+                Method method;
+                method = testClass.getMethod(targetMethod);
                 testMethodMap.put(method.getName(), new CustomTestMethod(method));
+            } catch (NoSuchMethodException e) {
+                System.out.println("No such test method : []" + targetMethod);
+            }
+        } else {
+            //Iterate methods and add them into hashmap
+            for (Method method : testClass.getMethods()) {
+                if (method.isAnnotationPresent(Test.class)) {
+                    testMethodMap.put(method.getName(), new CustomTestMethod(method));
+                }
             }
         }
     }
@@ -76,5 +92,25 @@ public class CustomRunner extends Runner {
                 runNotifier.fireTestFinished(Description.createTestDescription(testClass, methodName));
             }
         }
+    }
+
+    /**
+     * Retrieves target method from run argument which is located in "sun.java.command" system property
+     * CAUTION: may be valid for only intellij JUnit runner.
+     *
+     * @return test method name by string if there is one. if not, returns empty string.
+     */
+    private String getMethodNameFromArgs() {
+        String property;
+        String[] args, targets;
+
+        property = System.getProperty(runArgsPropertyName);
+        args = property.split("\\s+");
+        if (args.length >= 4) {
+            targets = args[3].split(",");
+            if (targets.length >= 2)
+                return targets[1];
+        }
+        return "";
     }
 }
