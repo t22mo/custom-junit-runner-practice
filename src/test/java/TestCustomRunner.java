@@ -1,10 +1,12 @@
 import com.test.custom.annotations.Repeat;
+import com.test.custom.annotations.TestOrder;
 import com.test.custom.runner.CustomRunner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(CustomRunner.class)
+@TestOrder(TestOrder.OrderType.ASCEND)
 public class TestCustomRunner {
 
     @Test

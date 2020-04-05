@@ -1,5 +1,6 @@
 package com.test.custom.runner;
 
+import com.test.custom.annotations.TestOrder;
 import com.test.custom.data.CustomTestMethod;
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -9,6 +10,8 @@ import org.junit.runner.notification.RunNotifier;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -64,9 +67,19 @@ public class CustomRunner extends Runner {
             System.out.println("Error instanciating testClass object");
             e.printStackTrace();
         }
+        ArrayList<String> keyList = new ArrayList<String>(testMethodMap.keySet());
+
+        //Sort method list
+        if (testClass.isAnnotationPresent(TestOrder.class)) {
+            TestOrder testOrder = (TestOrder) testClass.getDeclaredAnnotation(TestOrder.class);
+            if (testOrder.value() == TestOrder.OrderType.ASCEND)
+                Collections.sort(keyList);
+            else if (testOrder.value() == TestOrder.OrderType.DESCEND)
+                Collections.sort(keyList, Collections.reverseOrder());
+        }
 
         //iterate methods
-        for (String methodName : testMethodMap.keySet()) {
+        for (String methodName : keyList) {
             testMethod = testMethodMap.get(methodName);
             method = testMethod.getMethod();
             System.out.println("Testing testcase[" + method.getName() + "]");
