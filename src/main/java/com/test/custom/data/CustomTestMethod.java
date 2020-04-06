@@ -12,6 +12,8 @@ public class CustomTestMethod {
     private int estimateTime = 0;
     private boolean printTime = false;
     private Method method;
+    private Method beforeMethod = null;
+    private Method afterMethod = null;
 
 
     public CustomTestMethod(Method method) {
@@ -53,6 +55,22 @@ public class CustomTestMethod {
         this.printTime = printTime;
     }
 
+    public Method getBeforeMethod() {
+        return beforeMethod;
+    }
+
+    public void setBeforeMethod(Method beforeMethod) {
+        this.beforeMethod = beforeMethod;
+    }
+
+    public Method getAfterMethod() {
+        return afterMethod;
+    }
+
+    public void setAfterMethod(Method afterMethod) {
+        this.afterMethod = afterMethod;
+    }
+
     public Method getMethod() {
         return method;
     }
@@ -60,4 +78,6 @@ public class CustomTestMethod {
     public void setMethod(Method method) {
         this.method = method;
     }
+
+
 }

@@ -1,7 +1,4 @@
-import com.test.custom.annotations.EstimateTime;
-import com.test.custom.annotations.PrintTime;
-import com.test.custom.annotations.Repeat;
-import com.test.custom.annotations.TestOrder;
+import com.test.custom.annotations.*;
 import com.test.custom.runner.CustomRunner;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,5 +31,19 @@ public class TestCustomRunner {
         for (int i = 0; i < 100000000; i++) {
 
         }
+    }
+
+    @BeforeMethod("test1")
+    public void testBefore() {
+        System.out.println(">>>>>>>>>>>>");
+        System.out.println("Before test1");
+        System.out.println(">>>>>>>>>>>>");
+    }
+
+    @AfterMethod("test1")
+    public void testAfter() {
+        System.out.println("<<<<<<<<<<<<");
+        System.out.println("After test1");
+        System.out.println("<<<<<<<<<<<<");
     }
 }

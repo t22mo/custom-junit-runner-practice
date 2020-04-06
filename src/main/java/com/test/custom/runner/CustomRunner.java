@@ -1,5 +1,7 @@
 package com.test.custom.runner;
 
+import com.test.custom.annotations.AfterMethod;
+import com.test.custom.annotations.BeforeMethod;
 import com.test.custom.annotations.TestOrder;
 import com.test.custom.data.CustomTestMethod;
 import com.test.custom.exceptions.EstimatedTimeOverException;
@@ -39,12 +41,27 @@ public class CustomRunner extends Runner {
             } catch (NoSuchMethodException e) {
                 System.out.println("No such test method : []" + targetMethod);
             }
-        } else {
-            //Iterate methods and add them into hashmap
+        }
+        //else, add all existing methods to map
+        else {
             for (Method method : testClass.getMethods()) {
                 if (method.isAnnotationPresent(Test.class)) {
                     testMethodMap.put(method.getName(), new CustomTestMethod(method));
                 }
+            }
+        }
+
+        //re-iterate methods to add Before/AfterMethods to test methods
+        for (Method method : testClass.getMethods()) {
+            String testMethodName;
+            if (method.isAnnotationPresent(AfterMethod.class)) {
+                testMethodName = method.getDeclaredAnnotation(AfterMethod.class).value();
+                if (testMethodMap.get(testMethodName) != null)
+                    testMethodMap.get(testMethodName).setAfterMethod(method);
+            } else if (method.isAnnotationPresent(BeforeMethod.class)) {
+                testMethodName = method.getDeclaredAnnotation(BeforeMethod.class).value();
+                if (testMethodMap.get(testMethodName) != null)
+                    testMethodMap.get(testMethodName).setBeforeMethod(method);
             }
         }
     }
@@ -91,7 +108,13 @@ public class CustomRunner extends Runner {
                 try {
                     System.out.println("Testing testcase[" + method.getName() + "]");
                     startTime = System.currentTimeMillis();
+                    //run BeforeMethod if it exists
+                    if (testMethod.getBeforeMethod() != null)
+                        testMethod.getBeforeMethod().invoke(testObject);
                     method.invoke(testObject);
+                    //run AfterMethod if it exists
+                    if (testMethod.getAfterMethod() != null)
+                        testMethod.getAfterMethod().invoke(testObject);
                 } catch (InvocationTargetException ite) {
                     if (ite.getTargetException() instanceof AssertionError) {
                         System.out.println("Assertion failed");
