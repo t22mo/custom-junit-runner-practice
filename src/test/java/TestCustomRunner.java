@@ -1,10 +1,14 @@
+import com.test.custom.annotations.EstimateTime;
+import com.test.custom.annotations.PrintTime;
 import com.test.custom.annotations.Repeat;
+import com.test.custom.annotations.TestOrder;
 import com.test.custom.runner.CustomRunner;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(CustomRunner.class)
+@TestOrder(TestOrder.OrderType.ASCEND)
 public class TestCustomRunner {
 
     @Test
@@ -21,5 +25,14 @@ public class TestCustomRunner {
     @Repeat(2)
     public void test2() {
         System.out.println("test2");
+    }
+
+    @Test
+    @EstimateTime(9)
+    @PrintTime
+    public void test3() {
+        for (int i = 0; i < 100000000; i++) {
+
+        }
     }
 }
