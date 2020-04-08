@@ -59,15 +59,19 @@ public class CustomRunner extends Runner {
 
         //re-iterate methods to add Before/AfterMethods to test methods
         for (Method method : testClass.getMethods()) {
-            String testMethodName;
+            String[] testMethodList;
             if (method.isAnnotationPresent(AfterMethod.class)) {
-                testMethodName = method.getDeclaredAnnotation(AfterMethod.class).value();
-                if (testMethodMap.get(testMethodName) != null)
-                    testMethodMap.get(testMethodName).setAfterMethod(method);
+                testMethodList = method.getDeclaredAnnotation(AfterMethod.class).value();
+                for (String testMethodName : testMethodList) {
+                    if (testMethodMap.get(testMethodName) != null)
+                        testMethodMap.get(testMethodName).setAfterMethod(method);
+                }
             } else if (method.isAnnotationPresent(BeforeMethod.class)) {
-                testMethodName = method.getDeclaredAnnotation(BeforeMethod.class).value();
-                if (testMethodMap.get(testMethodName) != null)
-                    testMethodMap.get(testMethodName).setBeforeMethod(method);
+                testMethodList = method.getDeclaredAnnotation(BeforeMethod.class).value();
+                for (String testMethodName : testMethodList) {
+                    if (testMethodMap.get(testMethodName) != null)
+                        testMethodMap.get(testMethodName).setBeforeMethod(method);
+                }
             }
         }
     }

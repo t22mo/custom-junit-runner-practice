@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(CustomRunner.class)
-@RunGroup("A")
 @TestOrder(TestOrder.OrderType.ASCEND)
 public class TestCustomRunner {
 
@@ -37,17 +36,17 @@ public class TestCustomRunner {
         }
     }
 
-    @BeforeMethod("test1")
+    @BeforeMethod({"test1", "test2"})
     public void testBefore() {
         System.out.println(">>>>>>>>>>>>");
-        System.out.println("Before test1");
+        System.out.println("Before method");
         System.out.println(">>>>>>>>>>>>");
     }
 
-    @AfterMethod("test1")
+    @AfterMethod({"test2", "test3"})
     public void testAfter() {
         System.out.println("<<<<<<<<<<<<");
-        System.out.println("After test1");
+        System.out.println("After method");
         System.out.println("<<<<<<<<<<<<");
     }
 }
