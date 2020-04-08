@@ -1,6 +1,6 @@
 package com.test.custom.runner;
 
-import com.test.custom.annotations.TestOrder;
+import com.test.custom.annotations.*;
 import com.test.custom.data.CustomTestMethod;
 import com.test.custom.exceptions.EstimatedTimeOverException;
 import org.junit.Test;
@@ -24,11 +24,17 @@ public class CustomRunner extends Runner {
     public CustomRunner(Class testClass) {
         super();
         String targetMethod;
+        String runGroup = "";
         this.testClass = testClass;
         testMethodMap = new HashMap<String, CustomTestMethod>();
 
         //get target method from System.properties
         targetMethod = getMethodNameFromArgs();
+
+        if (testClass.isAnnotationPresent(RunGroup.class)) {
+            RunGroup runGroupAnnotation = (RunGroup) testClass.getDeclaredAnnotation(RunGroup.class);
+            runGroup = runGroupAnnotation.value();
+        }
 
         //if target method is present, add single method to map
         if (targetMethod.length() > 0) {
@@ -39,11 +45,32 @@ public class CustomRunner extends Runner {
             } catch (NoSuchMethodException e) {
                 System.out.println("No such test method : []" + targetMethod);
             }
-        } else {
-            //Iterate methods and add them into hashmap
+        }
+        //else, add all existing methods to map
+        else {
             for (Method method : testClass.getMethods()) {
                 if (method.isAnnotationPresent(Test.class)) {
-                    testMethodMap.put(method.getName(), new CustomTestMethod(method));
+                    //Check Run group if it exists.
+                    if (runGroup.length() <= 0 || runGroup.equals(getGroupFromMethod(method)))
+                        testMethodMap.put(method.getName(), new CustomTestMethod(method));
+                }
+            }
+        }
+
+        //re-iterate methods to add Before/AfterMethods to test methods
+        for (Method method : testClass.getMethods()) {
+            String[] testMethodList;
+            if (method.isAnnotationPresent(AfterMethod.class)) {
+                testMethodList = method.getDeclaredAnnotation(AfterMethod.class).value();
+                for (String testMethodName : testMethodList) {
+                    if (testMethodMap.get(testMethodName) != null)
+                        testMethodMap.get(testMethodName).setAfterMethod(method);
+                }
+            } else if (method.isAnnotationPresent(BeforeMethod.class)) {
+                testMethodList = method.getDeclaredAnnotation(BeforeMethod.class).value();
+                for (String testMethodName : testMethodList) {
+                    if (testMethodMap.get(testMethodName) != null)
+                        testMethodMap.get(testMethodName).setBeforeMethod(method);
                 }
             }
         }
@@ -91,7 +118,13 @@ public class CustomRunner extends Runner {
                 try {
                     System.out.println("Testing testcase[" + method.getName() + "]");
                     startTime = System.currentTimeMillis();
+                    //run BeforeMethod if it exists
+                    if (testMethod.getBeforeMethod() != null)
+                        testMethod.getBeforeMethod().invoke(testObject);
                     method.invoke(testObject);
+                    //run AfterMethod if it exists
+                    if (testMethod.getAfterMethod() != null)
+                        testMethod.getAfterMethod().invoke(testObject);
                 } catch (InvocationTargetException ite) {
                     if (ite.getTargetException() instanceof AssertionError) {
                         System.out.println("Assertion failed");
@@ -144,5 +177,19 @@ public class CustomRunner extends Runner {
                 return targets[1];
         }
         return "";
+    }
+
+    /**
+     * Retrieves @Group annotation value if it presents. If not, it returns empty string.
+     */
+    private String getGroupFromMethod(Method m) {
+        String result = "";
+        if (m != null) {
+            if (m.isAnnotationPresent(Group.class)) {
+                Group groupAnnotation = m.getAnnotation(Group.class);
+                result = groupAnnotation.value();
+            }
+        }
+        return result;
     }
 }
