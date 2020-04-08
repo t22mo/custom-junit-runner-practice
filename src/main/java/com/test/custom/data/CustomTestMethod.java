@@ -13,7 +13,10 @@ public class CustomTestMethod {
     private int estimateTime = 0;
     private boolean printTime = false;
     private Method method;
+    private Method beforeMethod = null;
+    private Method afterMethod = null;
     private String groupName = "";
+
 
     public CustomTestMethod(Method method) {
         if (method == null)
@@ -54,6 +57,22 @@ public class CustomTestMethod {
 
     public void setPrintTime(boolean printTime) {
         this.printTime = printTime;
+    }
+
+    public Method getBeforeMethod() {
+        return beforeMethod;
+    }
+
+    public void setBeforeMethod(Method beforeMethod) {
+        this.beforeMethod = beforeMethod;
+    }
+
+    public Method getAfterMethod() {
+        return afterMethod;
+    }
+
+    public void setAfterMethod(Method afterMethod) {
+        this.afterMethod = afterMethod;
     }
 
     public Method getMethod() {
