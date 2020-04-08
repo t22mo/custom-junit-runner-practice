@@ -1,6 +1,7 @@
 package com.test.custom.data;
 
 import com.test.custom.annotations.EstimateTime;
+import com.test.custom.annotations.Group;
 import com.test.custom.annotations.PrintTime;
 import com.test.custom.annotations.Repeat;
 
@@ -14,6 +15,7 @@ public class CustomTestMethod {
     private Method method;
     private Method beforeMethod = null;
     private Method afterMethod = null;
+    private String groupName = "";
 
 
     public CustomTestMethod(Method method) {
@@ -28,6 +30,8 @@ public class CustomTestMethod {
                 printTime = true;
             else if (annotation.annotationType().equals(EstimateTime.class))
                 estimateTime = method.getDeclaredAnnotation(EstimateTime.class).value();
+            else if (annotation.annotationType().equals(Group.class))
+                groupName = method.getDeclaredAnnotation(Group.class).value();
         }
     }
 
@@ -73,6 +77,14 @@ public class CustomTestMethod {
 
     public Method getMethod() {
         return method;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     public void setMethod(Method method) {
